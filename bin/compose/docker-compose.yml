@@ -1,0 +1,19 @@
+version: "2.0"
+
+services:
+  cluster-akka-master:
+    image: cluster-akka:latest
+    environment:
+      SEED_NODE: cluster-akka-master:8080
+      NODE_TYPE: MASTER
+      HOST_NAME: cluster-akka-master
+    ports:
+      - "8080:8080"
+
+  cluster-akka-slave:
+    image: cluster-akka:latest
+    environment:
+      SEED_NODE: cluster-akka-master:8080
+      NODE_TYPE: SLAVE
+      HOST_NAME: cluster-akka-slave
+
