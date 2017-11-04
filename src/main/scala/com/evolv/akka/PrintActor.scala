@@ -16,6 +16,8 @@ class PrintActor extends Actor with ActorLogging {
   import PrintActor._
 
   def receive = {
-    case p: Print => println(s"${ZonedDateTime.now(ZoneOffset.UTC)} --> hello from print actor ${p.name}")
+    case p: Print => {
+      println(s"${ZonedDateTime.now(ZoneOffset.UTC)} --> hello from print actor ${self.path} ---> ${p.name}")
+    }
   }
 }

@@ -1,11 +1,12 @@
-name := "AkkaClusterExample"
-version := "1.0"
-scalaVersion := "2.12.1"
+import Dependencies._
+import Resolvers._
+import sbt.Keys._
 
-resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
-
-libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-actor" % "2.5.6",
-  "com.typesafe.akka" %% "akka-cluster" % "2.5.6")
-
-        
+lazy val root = project.in(file("."))
+  .settings(
+    name := "AkkaClusterExample",
+    version := "1.0",
+    scalaVersion := "2.12.1",
+    resolvers := coreResolvers,
+    libraryDependencies ++= dependencies
+  )

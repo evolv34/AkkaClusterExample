@@ -3,6 +3,7 @@ package com.evolv.nodes
 import java.net.InetAddress
 
 import akka.actor.ActorSystem
+import com.evolv.akka.MetricsProducer
 import com.evolv.nodes.Master.actorSystem
 import com.typesafe.config.ConfigFactory
 
@@ -18,6 +19,7 @@ object Slave {
   }
 
   def start() = {
+    println(s"localhost ==> ${InetAddress.getLocalHost}")
     val clusterConfig = {
       ConfigFactory
         .parseString(s"akka.remote.netty.tcp.port=0")
@@ -29,5 +31,7 @@ object Slave {
     }
 
     val system = ActorSystem("HelloSystem", clusterConfig)
+
+    val monitorActor = system.actorOf(MetricsProducer.props, name = "printrouter-slave1")
   }
 }

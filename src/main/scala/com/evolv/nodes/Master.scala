@@ -4,9 +4,9 @@ import akka.actor.ActorSystem
 import akka.cluster.Cluster
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.RoundRobinPool
-import com.evolv.akka.HelloActor.Hello
-import com.evolv.akka.{HelloActor, PrintActor}
+import com.evolv.akka.{MetricsProducer, MetricsSubscriber}
 import com.typesafe.config.ConfigFactory
+
 import scala.concurrent.duration._
 
 /**
@@ -37,23 +37,20 @@ object Master {
     }
 
     val system = ActorSystem(actorSystem, clusterConfig)
+    val cluster = Cluster(system)
 
-    Cluster(system).registerOnMemberUp({
+    system.actorOf(MetricsSubscriber.props)
+
+    cluster.registerOnMemberUp({
       println("Member is up")
 
-      val printActor = system.actorOf(ClusterRouterPool(RoundRobinPool(0), ClusterRouterPoolSettings(
-        totalInstances = 10, maxInstancesPerNode = 3,
-        allowLocalRoutees = true)).props(PrintActor.props()), name = "printrouter")
-
-      val helloActor = system.actorOf(ClusterRouterPool(RoundRobinPool(0), ClusterRouterPoolSettings(
-        totalInstances = 10, maxInstancesPerNode = 3,
-        allowLocalRoutees = true)).props(HelloActor.props(printActor)), name = "hellorouter")
+      val monitorActor = system.actorOf(ClusterRouterPool(RoundRobinPool(0), ClusterRouterPoolSettings(
+        totalInstances = 10, maxInstancesPerNode = 1,
+        allowLocalRoutees = false)).props(MetricsProducer.props), name = "printrouter")
 
       import system.dispatcher
-
       system.scheduler.schedule(1.seconds, 1.seconds) {
-        helloActor ! Hello("Sam")
-        helloActor ! Hello("Allen")
+        monitorActor ! MetricsProducer.Publisher("hello from master")
       }
     })
 
